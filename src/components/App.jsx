@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import axios from 'axios';
 import {Searchbar} from './Searchbar/Searchbar';
 import {ImageGallery} from './ImageGallery/ImageGallery';
 import {Button} from './Button/Button';
@@ -8,6 +7,7 @@ import {Loader} from './Loader/Loader';
 import { AppWrapper } from './App.styled';
 import {ToastContainer, toast, Bounce} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {getImages} from './API/API';
 
 export class App extends Component {
   state = {
@@ -21,7 +21,7 @@ export class App extends Component {
     isLastPage: false,
   };
 
-async componentDidUpdate(_prevProps, prevState) { 
+ componentDidUpdate(_prevProps, prevState) { 
   if (prevState.query !== this.state.query) {       
       this.setState({ images: [], page: 1, isLastPage: false }, () => {
   this.fetchImages();
@@ -29,13 +29,12 @@ async componentDidUpdate(_prevProps, prevState) {
     }  
 }
 
-  async fetchImages () {
+  fetchImages = async() => {
     const { query, page } = this.state;
-    const API_KEY = '39776861-570fd88826b57aa6e10d37d1b';
     try {
       this.setState({ isLoading: true });
-      const response = await axios.get(`https://pixabay.com/api/?q=${query}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`);
-        const { hits, totalHits } = response.data;
+      const response = await getImages(query, page);
+        const { hits, totalHits } = response;
 
         if (hits.length === 0) { 
         return toast('Sorry, there are no images matching your request...', {type: "info", position: toast.POSITION.TOP_CENTER});
